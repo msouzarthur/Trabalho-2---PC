@@ -54,7 +54,7 @@ TOKEN :
 TOKEN :
 {
   <NUM : (["0"-"9"])+  ((".") (["0"-"9"])+)? (("E") ("+" | "-")? (["0"-"9"])+ )?>
-| <ID: ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9"])* ("_")*>
+| <ID: ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9"])* ("_"["a"-"z","A"-"Z","0"-"9"])*>
 
 }
 
@@ -82,7 +82,7 @@ void VARDECL() :
 {
   (
 	(
-		LET> TIPO() <TOKEN> <PONTOEVIRGULA>
+		<LET> TIPO() <TOKEN> <PONTOEVIRGULA>
 	)*
   )?
 }
@@ -142,7 +142,7 @@ void FATOR() :
 {}
 {
   <ID> 
-| <ID> <APARENTESES> LISTAEXP()? <FPARENTESES:
+| <ID> <APARENTESES> LISTAEXP()? <FPARENTESES>
 | <NUM>
 | <TRUE>
 | <FALSE>
