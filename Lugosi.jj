@@ -80,11 +80,7 @@ void MAIN():
 void VARDECL() :
 {}
 {
-  (
-	(
-		<LET> TIPO() <TOKEN> <PONTOEVIRGULA>
-	)*
-  )?
+  (<LET> TIPO() <TOKEN> <PONTOEVIRGULA>)*
 }
 
 // TIPO -> "float" | "bool" | "void"
@@ -102,31 +98,36 @@ void TIPO():
 void SEQCOMANDOS() :
 {}
 {
-  (
-  	COMANDO()*
-  )? 
+  (COMANDO())* 
 }
 
-//COMANDO -> TOKEN_id ":=" EXP ";"
-//| TOKEN_id "(" LISTAEXP? ")" ";"
-//| "if" EXP "{" SEQCOMANDOS "}" ";"
-//| "while" EXP "do" "{" SEQCOMANDOS "}" ";"
-//| TOKEN_id ":=" "readIO" "(" ")"
-//| "return" EXP ";"
-//| "printIO" EXP ";"
+//COMANDO ->  TOKEN_id ":=" EXP ";"
+//          | TOKEN_id ":=" "readIO" "(" ")"
+//          | TOKEN_id "(" LISTAEXP? ")" ";"
+//          | "if" EXP "{" SEQCOMANDOS "}" ";"
+//          | "while" EXP "do" "{" SEQCOMANDOS "}" ";"
+//          | "return" EXP ";"
+//          | "printIO" EXP ";"
 // OK
 void COMANDO() :
 {}
 {
-  <ID> <ATRIBUICAO> EXP() <PONTOEVIRGULA> 
-| <IF> EXP() <APARENTESES> LISTAEXP()? <FPARENTESES> <PONTOEVIRGULA>
+  <ID> COMANDO1()
+| <IF> EXP() <ACHAVES> SEQCOMANDOS() <FCHAVES> <PONTOEVIRGULA>
 | <WHILE> EXP() <DO> <ACHAVES> SEQCOMANDOS() <FCHAVES> <PONTOEVIRGULA>
-| <ID> <ATRIBUICAO> <ENTRADA> <APARENTESES> <APARENTESES> <FPARENTESES>
 | <RETURN> EXP() <PONTOEVIRGULA>
 | <SAIDA> EXP() <PONTOEVIRGULA>
 }
 
-//EXP -> "(" EXP OP EXP ")" | FATOR
+void COMANDO1() :
+{}
+{
+  <ATRIBUICAO> EXP() <PONTOEVIRGULA> 
+| <ATRIBUICAO> <ENTRADA> <APARENTESES> <FPARENTESES> 
+| <APARENTESES> LISTAEXP()? <FPARENTESES> <PONTOEVIRGULA>
+}
+
+// EXP -> "(" EXP OP EXP ")" | FATOR
 // OK
 void EXP() :
 {}
@@ -135,8 +136,7 @@ void EXP() :
 | FATOR()
 }
 
-// FATOR -> TOKEN_id | TOKEN_id "(" LISTAEXP? ")"
-//| TOKEN_numliteral | "true" | "false"
+// FATOR -> TOKEN_id | TOKEN_id "(" LISTAEXP? ")" | TOKEN_numliteral | "true" | "false"
 // OK
 void FATOR() :
 {}
@@ -172,15 +172,13 @@ void LISTAEXP() :
    EXP() (<VIRGULA> EXP())*
 }
 
-// FUNC -> FUNC "def" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
-//| "def" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
+// FUNC ->    FUNC "def" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
+//          | "def" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
 // OK
 void FUNC() :
 {}
 {
-  (
-  	<DEF> TIPO() <ID> <APARENTESES> LISTAARG? <FPARENTESES> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES>
-  )*
+  <DEF> TIPO() <ID> <APARENTESES> LISTAARG? <FPARENTESES> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES> (<DEF> TIPO() <ID> <APARENTESES> LISTAARG? <FPARENTESES> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES>)*
 }
 
 // LISTAARG -> TIPO TOKEN_id | LISTAARG "," TIPO TOKEN_id
@@ -188,6 +186,5 @@ void FUNC() :
 void LISTAARG() :
 {}
 {
-  TIPO() <ID>
-| LISTAARG() <VIRGULA> TIPO() <ID>
+  TIPO() <ID> (<VIRGULA> TIPO() <ID>)*
 }
