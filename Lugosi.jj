@@ -58,33 +58,27 @@ TOKEN :
 
 }
 
-
-// LUGOSI -> MAIN FUNC?
-// OK
 void Lugosi () :
-{}
+{Token t;}
 {
-  MAIN() FUNC()?
+  (
+    MAIN() (FUNC())?
+  )*
+  <EOF>
 }
 
-// MAIN -> "void" "main" "{" VARDECL SEQCOMANDOS "}"
-// OK
 void MAIN():
 {}
 {
   <VOID> <MAIN> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES>
 }
 
-// VARDECL -> VARDECL "let" TIPO TOKEN_id ";" | vazio
-// OK
 void VARDECL() :
 {}
 {
-  (<LET> TIPO() <TOKEN> <PONTOEVIRGULA>)*
+  (<LET> TIPO() <ID> <PONTOEVIRGULA>)*
 }
 
-// TIPO -> "float" | "bool" | "void"
-// OK
 void TIPO():
 {}
 {
@@ -93,22 +87,12 @@ void TIPO():
 | <VOID>
 }
 
-// SEQCOMANDOS -> SEQCOMANDOS COMANDO | vazio
-// OK
 void SEQCOMANDOS() :
 {}
 {
   (COMANDO())* 
 }
 
-//COMANDO ->  TOKEN_id ":=" EXP ";"
-//          | TOKEN_id ":=" "readIO" "(" ")"
-//          | TOKEN_id "(" LISTAEXP? ")" ";"
-//          | "if" EXP "{" SEQCOMANDOS "}" ";"
-//          | "while" EXP "do" "{" SEQCOMANDOS "}" ";"
-//          | "return" EXP ";"
-//          | "printIO" EXP ";"
-// OK
 void COMANDO() :
 {}
 {
@@ -122,13 +106,17 @@ void COMANDO() :
 void COMANDO1() :
 {}
 {
-  <ATRIBUICAO> EXP() <PONTOEVIRGULA> 
-| <ATRIBUICAO> <ENTRADA> <APARENTESES> <FPARENTESES> 
-| <APARENTESES> LISTAEXP()? <FPARENTESES> <PONTOEVIRGULA>
+  <ATRIBUICAO> COMANDO2()
+| <APARENTESES> (LISTAEXP())? <FPARENTESES> <PONTOEVIRGULA>
 }
 
-// EXP -> "(" EXP OP EXP ")" | FATOR
-// OK
+void COMANDO2() :
+{}
+{
+  EXP() <PONTOEVIRGULA>
+| <ENTRADA> <APARENTESES> <FPARENTESES>
+}
+
 void EXP() :
 {}
 {
@@ -136,20 +124,21 @@ void EXP() :
 | FATOR()
 }
 
-// FATOR -> TOKEN_id | TOKEN_id "(" LISTAEXP? ")" | TOKEN_numliteral | "true" | "false"
-// OK
-void FATOR() :
+void FATOR():
 {}
 {
-  <ID> 
-| <ID> <APARENTESES> LISTAEXP()? <FPARENTESES>
+  <ID> FATOR1()
 | <NUM>
 | <TRUE>
 | <FALSE>
 }
 
-// OP -> "+" | "-" | "*" | "/" | "&&" | "||" | "<" | ">" | "=="
-// OK
+void FATOR1():
+{}
+{
+  (<APARENTESES> LISTAEXP() <FPARENTESES>)*
+}
+
 void OP() :
 {}
 {
@@ -164,25 +153,18 @@ void OP() :
 | <IGUAL>
 }
 
-// LISTAEXP -> EXP | LISTAEXP "," EXP
-// OK
 void LISTAEXP() :
 {}
 {
    EXP() (<VIRGULA> EXP())*
 }
 
-// FUNC ->    FUNC "def" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
-//          | "def" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}"
-// OK
 void FUNC() :
 {}
 {
-  <DEF> TIPO() <ID> <APARENTESES> LISTAARG? <FPARENTESES> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES> (<DEF> TIPO() <ID> <APARENTESES> LISTAARG? <FPARENTESES> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES>)*
+  <DEF> TIPO() <ID> <APARENTESES> (LISTAARG())? <FPARENTESES> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES> (<DEF> TIPO() <ID> <APARENTESES> (LISTAARG())? <FPARENTESES> <ACHAVES> VARDECL() SEQCOMANDOS() <FCHAVES>)*
 }
 
-// LISTAARG -> TIPO TOKEN_id | LISTAARG "," TIPO TOKEN_id
-// OK
 void LISTAARG() :
 {}
 {
